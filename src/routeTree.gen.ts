@@ -9,38 +9,229 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as QrTokenRouteImport } from './routes/qr.$token'
+import { Route as AuthenticatedVencimentosRouteImport } from './routes/_authenticated/vencimentos'
+import { Route as AuthenticatedTreinamentosRouteImport } from './routes/_authenticated/treinamentos'
+import { Route as AuthenticatedNrsRouteImport } from './routes/_authenticated/nrs'
+import { Route as AuthenticatedFornecedoresRouteImport } from './routes/_authenticated/fornecedores'
+import { Route as AuthenticatedEpisRouteImport } from './routes/_authenticated/epis'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedColaboradoresRouteImport } from './routes/_authenticated/colaboradores'
+import { Route as AuthenticatedCertificadosRouteImport } from './routes/_authenticated/certificados'
+import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
+import { Route as AuthenticatedColaboradoresIdRouteImport } from './routes/_authenticated/colaboradores.$id'
+import { Route as AuthenticatedCertificadosIdRouteImport } from './routes/_authenticated/certificados.$id'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QrTokenRoute = QrTokenRouteImport.update({
+  id: '/qr/$token',
+  path: '/qr/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedVencimentosRoute =
+  AuthenticatedVencimentosRouteImport.update({
+    id: '/vencimentos',
+    path: '/vencimentos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTreinamentosRoute =
+  AuthenticatedTreinamentosRouteImport.update({
+    id: '/treinamentos',
+    path: '/treinamentos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedNrsRoute = AuthenticatedNrsRouteImport.update({
+  id: '/nrs',
+  path: '/nrs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFornecedoresRoute =
+  AuthenticatedFornecedoresRouteImport.update({
+    id: '/fornecedores',
+    path: '/fornecedores',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEpisRoute = AuthenticatedEpisRouteImport.update({
+  id: '/epis',
+  path: '/epis',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedColaboradoresRoute =
+  AuthenticatedColaboradoresRouteImport.update({
+    id: '/colaboradores',
+    path: '/colaboradores',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCertificadosRoute =
+  AuthenticatedCertificadosRouteImport.update({
+    id: '/certificados',
+    path: '/certificados',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedColaboradoresIdRoute =
+  AuthenticatedColaboradoresIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedColaboradoresRoute,
+  } as any)
+const AuthenticatedCertificadosIdRoute =
+  AuthenticatedCertificadosIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedCertificadosRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
+  '/certificados': typeof AuthenticatedCertificadosRouteWithChildren
+  '/colaboradores': typeof AuthenticatedColaboradoresRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/epis': typeof AuthenticatedEpisRoute
+  '/fornecedores': typeof AuthenticatedFornecedoresRoute
+  '/nrs': typeof AuthenticatedNrsRoute
+  '/treinamentos': typeof AuthenticatedTreinamentosRoute
+  '/vencimentos': typeof AuthenticatedVencimentosRoute
+  '/qr/$token': typeof QrTokenRoute
+  '/certificados/$id': typeof AuthenticatedCertificadosIdRoute
+  '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
+  '/certificados': typeof AuthenticatedCertificadosRouteWithChildren
+  '/colaboradores': typeof AuthenticatedColaboradoresRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/epis': typeof AuthenticatedEpisRoute
+  '/fornecedores': typeof AuthenticatedFornecedoresRoute
+  '/nrs': typeof AuthenticatedNrsRoute
+  '/treinamentos': typeof AuthenticatedTreinamentosRoute
+  '/vencimentos': typeof AuthenticatedVencimentosRoute
+  '/qr/$token': typeof QrTokenRoute
+  '/certificados/$id': typeof AuthenticatedCertificadosIdRoute
+  '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
+  '/_authenticated/certificados': typeof AuthenticatedCertificadosRouteWithChildren
+  '/_authenticated/colaboradores': typeof AuthenticatedColaboradoresRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/epis': typeof AuthenticatedEpisRoute
+  '/_authenticated/fornecedores': typeof AuthenticatedFornecedoresRoute
+  '/_authenticated/nrs': typeof AuthenticatedNrsRoute
+  '/_authenticated/treinamentos': typeof AuthenticatedTreinamentosRoute
+  '/_authenticated/vencimentos': typeof AuthenticatedVencimentosRoute
+  '/qr/$token': typeof QrTokenRoute
+  '/_authenticated/certificados/$id': typeof AuthenticatedCertificadosIdRoute
+  '/_authenticated/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/calendario'
+    | '/certificados'
+    | '/colaboradores'
+    | '/dashboard'
+    | '/epis'
+    | '/fornecedores'
+    | '/nrs'
+    | '/treinamentos'
+    | '/vencimentos'
+    | '/qr/$token'
+    | '/certificados/$id'
+    | '/colaboradores/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/calendario'
+    | '/certificados'
+    | '/colaboradores'
+    | '/dashboard'
+    | '/epis'
+    | '/fornecedores'
+    | '/nrs'
+    | '/treinamentos'
+    | '/vencimentos'
+    | '/qr/$token'
+    | '/certificados/$id'
+    | '/colaboradores/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/calendario'
+    | '/_authenticated/certificados'
+    | '/_authenticated/colaboradores'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/epis'
+    | '/_authenticated/fornecedores'
+    | '/_authenticated/nrs'
+    | '/_authenticated/treinamentos'
+    | '/_authenticated/vencimentos'
+    | '/qr/$token'
+    | '/_authenticated/certificados/$id'
+    | '/_authenticated/colaboradores/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  QrTokenRoute: typeof QrTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +239,154 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/qr/$token': {
+      id: '/qr/$token'
+      path: '/qr/$token'
+      fullPath: '/qr/$token'
+      preLoaderRoute: typeof QrTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/vencimentos': {
+      id: '/_authenticated/vencimentos'
+      path: '/vencimentos'
+      fullPath: '/vencimentos'
+      preLoaderRoute: typeof AuthenticatedVencimentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/treinamentos': {
+      id: '/_authenticated/treinamentos'
+      path: '/treinamentos'
+      fullPath: '/treinamentos'
+      preLoaderRoute: typeof AuthenticatedTreinamentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/nrs': {
+      id: '/_authenticated/nrs'
+      path: '/nrs'
+      fullPath: '/nrs'
+      preLoaderRoute: typeof AuthenticatedNrsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fornecedores': {
+      id: '/_authenticated/fornecedores'
+      path: '/fornecedores'
+      fullPath: '/fornecedores'
+      preLoaderRoute: typeof AuthenticatedFornecedoresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/epis': {
+      id: '/_authenticated/epis'
+      path: '/epis'
+      fullPath: '/epis'
+      preLoaderRoute: typeof AuthenticatedEpisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/colaboradores': {
+      id: '/_authenticated/colaboradores'
+      path: '/colaboradores'
+      fullPath: '/colaboradores'
+      preLoaderRoute: typeof AuthenticatedColaboradoresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/certificados': {
+      id: '/_authenticated/certificados'
+      path: '/certificados'
+      fullPath: '/certificados'
+      preLoaderRoute: typeof AuthenticatedCertificadosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/calendario': {
+      id: '/_authenticated/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/colaboradores/$id': {
+      id: '/_authenticated/colaboradores/$id'
+      path: '/$id'
+      fullPath: '/colaboradores/$id'
+      preLoaderRoute: typeof AuthenticatedColaboradoresIdRouteImport
+      parentRoute: typeof AuthenticatedColaboradoresRoute
+    }
+    '/_authenticated/certificados/$id': {
+      id: '/_authenticated/certificados/$id'
+      path: '/$id'
+      fullPath: '/certificados/$id'
+      preLoaderRoute: typeof AuthenticatedCertificadosIdRouteImport
+      parentRoute: typeof AuthenticatedCertificadosRoute
+    }
   }
 }
 
+interface AuthenticatedCertificadosRouteChildren {
+  AuthenticatedCertificadosIdRoute: typeof AuthenticatedCertificadosIdRoute
+}
+
+const AuthenticatedCertificadosRouteChildren: AuthenticatedCertificadosRouteChildren =
+  {
+    AuthenticatedCertificadosIdRoute: AuthenticatedCertificadosIdRoute,
+  }
+
+const AuthenticatedCertificadosRouteWithChildren =
+  AuthenticatedCertificadosRoute._addFileChildren(
+    AuthenticatedCertificadosRouteChildren,
+  )
+
+interface AuthenticatedColaboradoresRouteChildren {
+  AuthenticatedColaboradoresIdRoute: typeof AuthenticatedColaboradoresIdRoute
+}
+
+const AuthenticatedColaboradoresRouteChildren: AuthenticatedColaboradoresRouteChildren =
+  {
+    AuthenticatedColaboradoresIdRoute: AuthenticatedColaboradoresIdRoute,
+  }
+
+const AuthenticatedColaboradoresRouteWithChildren =
+  AuthenticatedColaboradoresRoute._addFileChildren(
+    AuthenticatedColaboradoresRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
+  AuthenticatedCertificadosRoute: typeof AuthenticatedCertificadosRouteWithChildren
+  AuthenticatedColaboradoresRoute: typeof AuthenticatedColaboradoresRouteWithChildren
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEpisRoute: typeof AuthenticatedEpisRoute
+  AuthenticatedFornecedoresRoute: typeof AuthenticatedFornecedoresRoute
+  AuthenticatedNrsRoute: typeof AuthenticatedNrsRoute
+  AuthenticatedTreinamentosRoute: typeof AuthenticatedTreinamentosRoute
+  AuthenticatedVencimentosRoute: typeof AuthenticatedVencimentosRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
+  AuthenticatedCertificadosRoute: AuthenticatedCertificadosRouteWithChildren,
+  AuthenticatedColaboradoresRoute: AuthenticatedColaboradoresRouteWithChildren,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEpisRoute: AuthenticatedEpisRoute,
+  AuthenticatedFornecedoresRoute: AuthenticatedFornecedoresRoute,
+  AuthenticatedNrsRoute: AuthenticatedNrsRoute,
+  AuthenticatedTreinamentosRoute: AuthenticatedTreinamentosRoute,
+  AuthenticatedVencimentosRoute: AuthenticatedVencimentosRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  QrTokenRoute: QrTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
