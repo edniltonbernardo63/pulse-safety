@@ -15,10 +15,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as QrTokenRouteImport } from './routes/qr.$token'
 import { Route as AuthenticatedVencimentosRouteImport } from './routes/_authenticated/vencimentos'
 import { Route as AuthenticatedTreinamentosRouteImport } from './routes/_authenticated/treinamentos'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedNrsRouteImport } from './routes/_authenticated/nrs'
 import { Route as AuthenticatedFornecedoresRouteImport } from './routes/_authenticated/fornecedores'
 import { Route as AuthenticatedEpisRouteImport } from './routes/_authenticated/epis'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedColaboradoresRouteImport } from './routes/_authenticated/colaboradores'
 import { Route as AuthenticatedCertificadosRouteImport } from './routes/_authenticated/certificados'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
@@ -56,6 +58,11 @@ const AuthenticatedTreinamentosRoute =
     path: '/treinamentos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedNrsRoute = AuthenticatedNrsRouteImport.update({
   id: '/nrs',
   path: '/nrs',
@@ -77,6 +84,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedColaboradoresRoute =
   AuthenticatedColaboradoresRouteImport.update({
     id: '/colaboradores',
@@ -113,10 +126,12 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/certificados': typeof AuthenticatedCertificadosRouteWithChildren
   '/colaboradores': typeof AuthenticatedColaboradoresRouteWithChildren
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/epis': typeof AuthenticatedEpisRoute
   '/fornecedores': typeof AuthenticatedFornecedoresRoute
   '/nrs': typeof AuthenticatedNrsRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/treinamentos': typeof AuthenticatedTreinamentosRoute
   '/vencimentos': typeof AuthenticatedVencimentosRoute
   '/qr/$token': typeof QrTokenRoute
@@ -129,10 +144,12 @@ export interface FileRoutesByTo {
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/certificados': typeof AuthenticatedCertificadosRouteWithChildren
   '/colaboradores': typeof AuthenticatedColaboradoresRouteWithChildren
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/epis': typeof AuthenticatedEpisRoute
   '/fornecedores': typeof AuthenticatedFornecedoresRoute
   '/nrs': typeof AuthenticatedNrsRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/treinamentos': typeof AuthenticatedTreinamentosRoute
   '/vencimentos': typeof AuthenticatedVencimentosRoute
   '/qr/$token': typeof QrTokenRoute
@@ -147,10 +164,12 @@ export interface FileRoutesById {
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/certificados': typeof AuthenticatedCertificadosRouteWithChildren
   '/_authenticated/colaboradores': typeof AuthenticatedColaboradoresRouteWithChildren
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/epis': typeof AuthenticatedEpisRoute
   '/_authenticated/fornecedores': typeof AuthenticatedFornecedoresRoute
   '/_authenticated/nrs': typeof AuthenticatedNrsRoute
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/treinamentos': typeof AuthenticatedTreinamentosRoute
   '/_authenticated/vencimentos': typeof AuthenticatedVencimentosRoute
   '/qr/$token': typeof QrTokenRoute
@@ -165,10 +184,12 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/certificados'
     | '/colaboradores'
+    | '/configuracoes'
     | '/dashboard'
     | '/epis'
     | '/fornecedores'
     | '/nrs'
+    | '/relatorios'
     | '/treinamentos'
     | '/vencimentos'
     | '/qr/$token'
@@ -181,10 +202,12 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/certificados'
     | '/colaboradores'
+    | '/configuracoes'
     | '/dashboard'
     | '/epis'
     | '/fornecedores'
     | '/nrs'
+    | '/relatorios'
     | '/treinamentos'
     | '/vencimentos'
     | '/qr/$token'
@@ -198,10 +221,12 @@ export interface FileRouteTypes {
     | '/_authenticated/calendario'
     | '/_authenticated/certificados'
     | '/_authenticated/colaboradores'
+    | '/_authenticated/configuracoes'
     | '/_authenticated/dashboard'
     | '/_authenticated/epis'
     | '/_authenticated/fornecedores'
     | '/_authenticated/nrs'
+    | '/_authenticated/relatorios'
     | '/_authenticated/treinamentos'
     | '/_authenticated/vencimentos'
     | '/qr/$token'
@@ -260,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTreinamentosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/nrs': {
       id: '/_authenticated/nrs'
       path: '/nrs'
@@ -286,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/colaboradores': {
@@ -358,10 +397,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedCertificadosRoute: typeof AuthenticatedCertificadosRouteWithChildren
   AuthenticatedColaboradoresRoute: typeof AuthenticatedColaboradoresRouteWithChildren
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEpisRoute: typeof AuthenticatedEpisRoute
   AuthenticatedFornecedoresRoute: typeof AuthenticatedFornecedoresRoute
   AuthenticatedNrsRoute: typeof AuthenticatedNrsRoute
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedTreinamentosRoute: typeof AuthenticatedTreinamentosRoute
   AuthenticatedVencimentosRoute: typeof AuthenticatedVencimentosRoute
 }
@@ -370,10 +411,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedCertificadosRoute: AuthenticatedCertificadosRouteWithChildren,
   AuthenticatedColaboradoresRoute: AuthenticatedColaboradoresRouteWithChildren,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEpisRoute: AuthenticatedEpisRoute,
   AuthenticatedFornecedoresRoute: AuthenticatedFornecedoresRoute,
   AuthenticatedNrsRoute: AuthenticatedNrsRoute,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedTreinamentosRoute: AuthenticatedTreinamentosRoute,
   AuthenticatedVencimentosRoute: AuthenticatedVencimentosRoute,
 }
@@ -390,13 +433,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

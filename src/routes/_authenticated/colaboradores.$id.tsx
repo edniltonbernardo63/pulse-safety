@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Plus, Printer, FileBadge } from "lucide-react";
+import { ArrowLeft, Plus, Printer, FileBadge, Pencil, QrCode as QrIcon, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { fmtDate, tempoEmpresa, statusVencimento, statusBadgeClass, statusLabel } from "@/lib/sst";
+import { ColaboradorForm } from "./colaboradores";
 
 export const Route = createFileRoute("/_authenticated/colaboradores/$id")({
   component: ColaboradorDetalhe,
@@ -51,9 +52,34 @@ function ColaboradorDetalhe() {
   const [openTr, setOpenTr] = useState(false);
   const [openEpi, setOpenEpi] = useState(false);
   const [openHist, setOpenHist] = useState(false);
-  const [openQr, setOpenQr] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [editForm, setEditForm] = useState<any>(null);
 
   const qrUrl = c ? `${typeof window !== "undefined" ? window.location.origin : ""}/qr/${c.qrcode_token}` : "";
+
+  const editMut = useMutation({
+    mutationFn: async () => {
+      const payload: any = { ...editForm };
+      Object.keys(payload).forEach((k) => { if (payload[k] === "") payload[k] = null; });
+      delete payload.id; delete payload.created_at; delete payload.updated_at; delete payload.qrcode_token;
+      const { error } = await supabase.from("colaboradores").update(payload).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Colaborador atualizado");
+      qc.invalidateQueries({ queryKey: ["colab", id] });
+      qc.invalidateQueries({ queryKey: ["colaboradores"] });
+      setOpenEdit(false);
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  // Contadores de EPI por tipo
+  const episPorTipo = useMemo(() => {
+    const map: Record<string, number> = {};
+    (epis ?? []).forEach((e: any) => { map[e.tipo] = (map[e.tipo] ?? 0) + 1; });
+    return map;
+  }, [epis]);
 
   return (
     <div className="space-y-6">
@@ -61,30 +87,52 @@ function ColaboradorDetalhe() {
         <Link to="/colaboradores"><ArrowLeft className="h-4 w-4 mr-1" /> Voltar</Link>
       </Button>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="md:col-span-2">
-          <CardHeader><CardTitle>{c?.nome ?? "..."}</CardTitle></CardHeader>
-          <CardContent className="grid grid-cols-2 gap-3 text-sm">
-            <Info label="CPF" v={c?.cpf} />
-            <Info label="Função" v={c?.funcao_atual} />
-            <Info label="Setor" v={c?.setor} />
-            <Info label="Status" v={c?.status} />
-            <Info label="Admissão" v={fmtDate(c?.data_admissao)} />
-            <Info label="Tempo de empresa" v={tempoEmpresa(c?.data_admissao)} />
-            <Info label="Telefone" v={c?.telefone} />
-            <Info label="E-mail" v={c?.email} />
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <CardTitle className="text-xl sm:text-2xl truncate">{c?.nome ?? "..."}</CardTitle>
+              <div className="text-sm text-muted-foreground">{c?.funcao_atual ?? "—"}{c?.setor ? ` · ${c.setor}` : ""}</div>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => { setEditForm({ ...c }); setOpenEdit(true); }}>
+                <Pencil className="h-4 w-4 mr-1" /> Editar
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              <Info label="CPF" v={c?.cpf} />
+              <Info label="RG" v={c?.rg} />
+              <Info label="Nascimento" v={fmtDate(c?.data_nascimento)} />
+              <Info label="Status" v={c?.status} />
+              <Info label="Admissão" v={fmtDate(c?.data_admissao)} />
+              <Info label="Tempo de empresa" v={tempoEmpresa(c?.data_admissao)} />
+              <Info label="Telefone" v={c?.telefone} />
+              <Info label="E-mail pessoal" v={c?.email} />
+              <Info label="E-mail corporativo" v={(c as any)?.email_corporativo} className="sm:col-span-2" />
+              <Info label="Endereço" v={c?.endereco} className="sm:col-span-2" />
+            </dl>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="text-base">QR Code</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base flex items-center gap-2"><QrIcon className="h-4 w-4" /> QR Code</CardTitle></CardHeader>
           <CardContent className="flex flex-col items-center gap-3">
             {c && (
               <>
-                <div className="p-3 bg-white rounded-lg">
+                <div className="p-3 bg-white rounded-lg border">
                   <QRCodeSVG value={qrUrl} size={140} />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setOpenQr(true)}>Imprimir / Ver</Button>
+                <div className="flex gap-2 flex-wrap justify-center">
+                  <Button size="sm" variant="outline" asChild>
+                    <a href={qrUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4 mr-1" /> Abrir</a>
+                  </Button>
+                  <Button size="sm" onClick={() => window.open(`/qr-print/${c.qrcode_token}`, "_blank")}>
+                    <Printer className="h-4 w-4 mr-1" /> Imprimir
+                  </Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground break-all text-center">{qrUrl}</p>
               </>
             )}
           </CardContent>
@@ -95,13 +143,13 @@ function ColaboradorDetalhe() {
         <TabsList>
           <TabsTrigger value="tr">Treinamentos</TabsTrigger>
           <TabsTrigger value="epis">EPIs</TabsTrigger>
-          <TabsTrigger value="hist">Histórico de funções</TabsTrigger>
+          <TabsTrigger value="hist">Histórico</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tr">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">Treinamentos realizados</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between gap-2">
+              <CardTitle className="text-base">Treinamentos concluídos</CardTitle>
               <Dialog open={openTr} onOpenChange={setOpenTr}>
                 <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Registrar</Button></DialogTrigger>
                 <DialogContent>
@@ -111,7 +159,7 @@ function ColaboradorDetalhe() {
               </Dialog>
             </CardHeader>
             <CardContent className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-[720px]">
                 <thead className="text-left text-muted-foreground border-b">
                   <tr><th className="py-2">Treinamento</th><th>NR</th><th>Carga</th><th>Realização</th><th>Vencimento</th><th>Status</th><th></th></tr>
                 </thead>
@@ -145,8 +193,17 @@ function ColaboradorDetalhe() {
 
         <TabsContent value="epis">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">EPIs entregues</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between gap-2">
+              <div>
+                <CardTitle className="text-base">EPIs entregues</CardTitle>
+                {Object.keys(episPorTipo).length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {Object.entries(episPorTipo).map(([tipo, qtd]) => (
+                      <Badge key={tipo} variant="secondary" className="text-xs">{tipo}: {qtd}</Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
               <Dialog open={openEpi} onOpenChange={setOpenEpi}>
                 <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Registrar</Button></DialogTrigger>
                 <DialogContent>
@@ -156,7 +213,7 @@ function ColaboradorDetalhe() {
               </Dialog>
             </CardHeader>
             <CardContent className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-[640px]">
                 <thead className="text-left text-muted-foreground border-b">
                   <tr><th className="py-2">Tipo</th><th>CA</th><th>Entrega</th><th>Vida útil</th><th>Vencimento</th><th>Status</th></tr>
                 </thead>
@@ -185,7 +242,7 @@ function ColaboradorDetalhe() {
 
         <TabsContent value="hist">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between gap-2">
               <CardTitle className="text-base">Histórico de funções</CardTitle>
               <Dialog open={openHist} onOpenChange={setOpenHist}>
                 <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Adicionar</Button></DialogTrigger>
@@ -205,7 +262,7 @@ function ColaboradorDetalhe() {
                     <tr key={h.id} className="border-b last:border-0">
                       <td className="py-2">{h.funcao}</td>
                       <td>{fmtDate(h.data_inicio)}</td>
-                      <td>{fmtDate(h.data_fim) === "—" ? "Atual" : fmtDate(h.data_fim)}</td>
+                      <td>{h.data_fim ? fmtDate(h.data_fim) : "Atual"}</td>
                     </tr>
                   ))}
                   {(!historico || historico.length === 0) && (
@@ -218,25 +275,23 @@ function ColaboradorDetalhe() {
         </TabsContent>
       </Tabs>
 
-      <Dialog open={openQr} onOpenChange={setOpenQr}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>QR Code — {c?.nome}</DialogTitle></DialogHeader>
-          <div className="flex flex-col items-center gap-4 p-4">
-            {c && <QRCodeSVG value={qrUrl} size={280} />}
-            <p className="text-xs text-muted-foreground break-all">{qrUrl}</p>
-            <Button onClick={() => window.print()}><Printer className="h-4 w-4 mr-2" /> Imprimir</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {editForm && (
+        <Dialog open={openEdit} onOpenChange={setOpenEdit}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader><DialogTitle>Editar colaborador</DialogTitle></DialogHeader>
+            <ColaboradorForm form={editForm} setForm={setEditForm} onSubmit={() => editMut.mutate()} loading={editMut.isPending} />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
 
-function Info({ label, v }: { label: string; v?: string | null }) {
+function Info({ label, v, className }: { label: string; v?: string | null; className?: string }) {
   return (
-    <div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="font-medium">{v || "—"}</div>
+    <div className={className}>
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="font-medium break-words">{v || "—"}</dd>
     </div>
   );
 }
@@ -248,21 +303,12 @@ function TrForm({ colaboradorId, catalogo, onDone }: any) {
   const [local, setLocal] = useState("");
   const mut = useMutation({
     mutationFn: async () => {
-      const t = catalogo.find((x: any) => x.id === treinamentoId);
-      const per = t?.nr?.periodicidade_meses;
-      let venc: string | null = null;
-      if (per && data_realizacao) {
-        const d = new Date(data_realizacao);
-        d.setMonth(d.getMonth() + per);
-        venc = d.toISOString().slice(0, 10);
-      }
       const { error } = await supabase.from("treinamentos_realizados").insert({
         colaborador_id: colaboradorId,
         treinamento_id: treinamentoId,
         data_realizacao,
-        data_vencimento: venc,
-        instrutor,
-        local,
+        instrutor: instrutor || null,
+        local: local || null,
       });
       if (error) throw error;
     },
@@ -311,8 +357,8 @@ function EpiForm({ colaboradorId, onDone }: any) {
   });
   return (
     <form onSubmit={(e) => { e.preventDefault(); mut.mutate(); }} className="grid grid-cols-2 gap-3">
-      <div className="space-y-1.5 col-span-2"><Label>Tipo de EPI</Label><Input required value={f.tipo} onChange={(e) => setF({ ...f, tipo: e.target.value })} /></div>
-      <div className="space-y-1.5"><Label>CA</Label><Input value={f.ca_numero} onChange={(e) => setF({ ...f, ca_numero: e.target.value })} /></div>
+      <div className="space-y-1.5 col-span-2"><Label>Tipo de EPI</Label><Input required value={f.tipo} onChange={(e) => setF({ ...f, tipo: e.target.value })} placeholder="Ex: Luva de vaqueta, Capacete, Bota" /></div>
+      <div className="space-y-1.5"><Label>Nº CA</Label><Input value={f.ca_numero} onChange={(e) => setF({ ...f, ca_numero: e.target.value })} /></div>
       <div className="space-y-1.5"><Label>Vida útil (meses)</Label><Input type="number" value={f.vida_util_meses} onChange={(e) => setF({ ...f, vida_util_meses: e.target.value })} /></div>
       <div className="space-y-1.5 col-span-2"><Label>Data de entrega</Label><Input type="date" required value={f.data_entrega} onChange={(e) => setF({ ...f, data_entrega: e.target.value })} /></div>
       <DialogFooter className="col-span-2"><Button type="submit" disabled={mut.isPending}>Salvar</Button></DialogFooter>
