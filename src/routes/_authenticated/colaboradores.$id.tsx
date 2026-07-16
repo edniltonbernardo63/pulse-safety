@@ -128,7 +128,7 @@ function ColaboradorDetalhe() {
                   <Button size="sm" variant="outline" asChild>
                     <a href={qrUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4 mr-1" /> Abrir</a>
                   </Button>
-                  <Button size="sm" onClick={() => window.open(`/qr-print/${c.qrcode_token}`, "_blank")}>
+                  <Button size="sm" onClick={() => { const w = window.open(qrUrl, "_blank"); if (w) setTimeout(() => w.print(), 800); }}>
                     <Printer className="h-4 w-4 mr-1" /> Imprimir
                   </Button>
                 </div>
