@@ -21,6 +21,7 @@ export type Database = {
           data_admissao: string | null
           data_nascimento: string | null
           email: string | null
+          email_corporativo: string | null
           endereco: string | null
           foto_url: string | null
           funcao_atual: string | null
@@ -39,6 +40,7 @@ export type Database = {
           data_admissao?: string | null
           data_nascimento?: string | null
           email?: string | null
+          email_corporativo?: string | null
           endereco?: string | null
           foto_url?: string | null
           funcao_atual?: string | null
@@ -57,6 +59,7 @@ export type Database = {
           data_admissao?: string | null
           data_nascimento?: string | null
           email?: string | null
+          email_corporativo?: string | null
           endereco?: string | null
           foto_url?: string | null
           funcao_atual?: string | null
@@ -66,6 +69,48 @@ export type Database = {
           rg?: string | null
           setor?: string | null
           status?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      configuracoes_empresa: {
+        Row: {
+          arte_sipat_url: string | null
+          cnpj: string | null
+          email: string | null
+          endereco: string | null
+          id: string
+          logo_url: string | null
+          nome_empresa: string
+          tecnico_responsavel_nome: string | null
+          tecnico_responsavel_registro: string | null
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          arte_sipat_url?: string | null
+          cnpj?: string | null
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          logo_url?: string | null
+          nome_empresa?: string
+          tecnico_responsavel_nome?: string | null
+          tecnico_responsavel_registro?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          arte_sipat_url?: string | null
+          cnpj?: string | null
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          logo_url?: string | null
+          nome_empresa?: string
+          tecnico_responsavel_nome?: string | null
+          tecnico_responsavel_registro?: string | null
           telefone?: string | null
           updated_at?: string
         }
@@ -126,6 +171,7 @@ export type Database = {
           local: string | null
           tipo: string
           titulo: string
+          treinamento_id: string | null
         }
         Insert: {
           colaboradores_convocados?: string[] | null
@@ -137,6 +183,7 @@ export type Database = {
           local?: string | null
           tipo?: string
           titulo: string
+          treinamento_id?: string | null
         }
         Update: {
           colaboradores_convocados?: string[] | null
@@ -148,8 +195,17 @@ export type Database = {
           local?: string | null
           tipo?: string
           titulo?: string
+          treinamento_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "eventos_calendario_treinamento_id_fkey"
+            columns: ["treinamento_id"]
+            isOneToOne: false
+            referencedRelation: "treinamentos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fornecedores: {
         Row: {
@@ -232,6 +288,7 @@ export type Database = {
           codigo: string
           created_at: string
           id: string
+          link_oficial: string | null
           periodicidade_meses: number | null
           resumo: string | null
           titulo: string
@@ -242,6 +299,7 @@ export type Database = {
           codigo: string
           created_at?: string
           id?: string
+          link_oficial?: string | null
           periodicidade_meses?: number | null
           resumo?: string | null
           titulo: string
@@ -252,6 +310,7 @@ export type Database = {
           codigo?: string
           created_at?: string
           id?: string
+          link_oficial?: string | null
           periodicidade_meses?: number | null
           resumo?: string | null
           titulo?: string
@@ -288,6 +347,8 @@ export type Database = {
           id: string
           nome: string
           nr_id: string | null
+          tipo: Database["public"]["Enums"]["tipo_treinamento"]
+          validade_meses: number | null
         }
         Insert: {
           carga_horaria?: number | null
@@ -297,6 +358,8 @@ export type Database = {
           id?: string
           nome: string
           nr_id?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_treinamento"]
+          validade_meses?: number | null
         }
         Update: {
           carga_horaria?: number | null
@@ -306,6 +369,8 @@ export type Database = {
           id?: string
           nome?: string
           nr_id?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_treinamento"]
+          validade_meses?: number | null
         }
         Relationships: [
           {
@@ -411,6 +476,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "tecnico" | "consulta"
+      tipo_treinamento: "treinamento" | "palestra"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -539,6 +605,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "tecnico", "consulta"],
+      tipo_treinamento: ["treinamento", "palestra"],
     },
   },
 } as const

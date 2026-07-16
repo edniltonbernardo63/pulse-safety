@@ -2,6 +2,18 @@ import { differenceInDays, differenceInMonths, differenceInYears, format, parseI
 
 export type VencStatus = "vencido" | "a_vencer" | "valido" | "sem_data";
 
+export const SETORES = [
+  "Administrativo",
+  "Cozinha",
+  "Limpeza",
+  "Manutenção",
+  "Motoristas",
+  "Operação",
+  "RH",
+] as const;
+
+export const STATUS_COLAB = ["ativo", "inativo", "afastado", "ferias"] as const;
+
 export function statusVencimento(dataVencimento: string | null | undefined): VencStatus {
   if (!dataVencimento) return "sem_data";
   const d = typeof dataVencimento === "string" ? parseISO(dataVencimento) : dataVencimento;
@@ -45,4 +57,50 @@ export function statusBadgeClass(s: VencStatus): string {
     valido: "bg-success text-success-foreground",
     sem_data: "bg-muted text-muted-foreground",
   }[s];
+}
+
+// Máscaras
+export function maskCPF(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  return d
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+
+export function maskCNPJ(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 14);
+  return d
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+}
+
+export function maskFone(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 10) return d.replace(/(\d{2})(\d{4})(\d)/, "($1) $2-$3");
+  return d.replace(/(\d{2})(\d{5})(\d)/, "($1) $2-$3");
+}
+
+// CSV export
+export function toCSV(rows: Record<string, any>[], headers: { key: string; label: string }[]): string {
+  const esc = (v: any) => {
+    if (v == null) return "";
+    const s = String(v).replace(/"/g, '""');
+    return /[",;\n]/.test(s) ? `"${s}"` : s;
+  };
+  const head = headers.map((h) => esc(h.label)).join(";");
+  const body = rows.map((r) => headers.map((h) => esc(r[h.key])).join(";")).join("\n");
+  return "\ufeff" + head + "\n" + body;
+}
+
+export function downloadCSV(filename: string, content: string) {
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }

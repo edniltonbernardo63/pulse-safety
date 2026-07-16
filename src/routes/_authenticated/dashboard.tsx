@@ -16,11 +16,12 @@ function DashboardPage() {
   const { data } = useQuery({
     queryKey: ["dashboard"],
     queryFn: async () => {
+      const nowIso = new Date().toISOString();
       const [colabs, trReal, epis, eventos] = await Promise.all([
         supabase.from("colaboradores").select("id, nome, setor, status"),
         supabase.from("treinamentos_realizados").select("id, data_vencimento, data_realizacao, colaborador_id, treinamento:treinamentos(nome, nr:normas_nr(codigo))"),
         supabase.from("epis").select("id, data_vencimento, tipo"),
-        supabase.from("eventos_calendario").select("id, titulo, tipo, data_inicio").gte("data_inicio", new Date().toISOString()).order("data_inicio").limit(5),
+        supabase.from("eventos_calendario").select("id, titulo, tipo, data_inicio, local").gte("data_inicio", nowIso).order("data_inicio").limit(10),
       ]);
       return {
         colabs: colabs.data ?? [],
@@ -38,17 +39,9 @@ function DashboardPage() {
 
   const ativos = colabs.filter((c) => c.status === "ativo").length;
   const vencidos = trReal.filter((t) => statusVencimento(t.data_vencimento) === "vencido").length;
-  const em15 = trReal.filter((t) => {
-    const d = diasAteVencimento(t.data_vencimento);
-    return d !== null && d >= 0 && d <= 15;
-  }).length;
   const em30 = trReal.filter((t) => {
     const d = diasAteVencimento(t.data_vencimento);
     return d !== null && d >= 0 && d <= 30;
-  }).length;
-  const em60 = trReal.filter((t) => {
-    const d = diasAteVencimento(t.data_vencimento);
-    return d !== null && d >= 0 && d <= 60;
   }).length;
   const episVenc = epis.filter((e) => ["vencido", "a_vencer"].includes(statusVencimento(e.data_vencimento))).length;
 
@@ -73,11 +66,10 @@ function DashboardPage() {
         <p className="text-sm text-muted-foreground">Visão geral do sistema de gestão de SST.</p>
       </div>
 
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={Users} label="Colaboradores ativos" value={ativos} />
         <StatCard icon={AlertTriangle} label="Treinamentos vencidos" value={vencidos} tone="destructive" />
-        <StatCard icon={GraduationCap} label="Vencem em 15 dias" value={em15} tone="warning" />
-        <StatCard icon={GraduationCap} label="Vencem em 30 dias" value={em30} />
+        <StatCard icon={GraduationCap} label="Vencem em 30 dias" value={em30} tone="warning" />
         <StatCard icon={HardHat} label="EPIs a vencer/vencidos" value={episVenc} tone="warning" />
         <StatCard icon={FileBadge} label="Certificados no mês" value={certMes} />
       </div>
@@ -107,17 +99,19 @@ function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2"><Calendar className="h-4 w-4" /> Próximos eventos</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base"><Calendar className="h-4 w-4" /> Próximos eventos</CardTitle>
             <Link to="/calendario" className="text-xs text-primary hover:underline">ver todos</Link>
           </CardHeader>
           <CardContent className="space-y-3">
             {eventos.length === 0 && <p className="text-sm text-muted-foreground">Nenhum evento agendado.</p>}
-            {eventos.map((e) => (
+            {eventos.map((e: any) => (
               <div key={e.id} className="flex items-start gap-3 text-sm">
                 <div className="w-1 self-stretch bg-primary rounded" />
                 <div className="min-w-0 flex-1">
                   <div className="font-medium truncate">{e.titulo}</div>
-                  <div className="text-xs text-muted-foreground">{fmtDate(e.data_inicio)} · {e.tipo}</div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {fmtDate(e.data_inicio)} · <span className="capitalize">{e.tipo}</span>{e.local ? ` · ${e.local}` : ""}
+                  </div>
                 </div>
               </div>
             ))}

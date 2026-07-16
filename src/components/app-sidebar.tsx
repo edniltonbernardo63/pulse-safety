@@ -9,6 +9,8 @@ import {
   BookOpen,
   Calendar,
   FileBadge,
+  FileText,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,6 +35,8 @@ const nav = [
   { title: "Fornecedores", url: "/fornecedores", icon: Building2 },
   { title: "Normas (NRs)", url: "/nrs", icon: BookOpen },
   { title: "Calendário", url: "/calendario", icon: Calendar },
+  { title: "Relatórios", url: "/relatorios", icon: FileText },
+  { title: "Configurações", url: "/configuracoes", icon: Settings },
 ];
 
 export function AppSidebar() {
