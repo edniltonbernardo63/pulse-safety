@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { fmtDate, tempoEmpresa, SETORES, STATUS_COLAB, maskCPF, maskFone } from "@/lib/sst";
+
 
 export const Route = createFileRoute("/_authenticated/colaboradores")({
   head: () => ({ meta: [{ title: "Colaboradores — TEC - SST" }] }),
@@ -28,7 +29,9 @@ function ColaboradoresPage() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
   const [form, setForm] = useState<any>(emptyForm);
+
 
   const { data: list } = useQuery({
     queryKey: ["colaboradores"],
@@ -39,17 +42,37 @@ function ColaboradoresPage() {
     mutationFn: async (payload: any) => {
       const clean: any = { ...payload };
       Object.keys(clean).forEach((k) => { if (clean[k] === "") clean[k] = null; });
-      const { error } = await supabase.from("colaboradores").insert(clean);
-      if (error) throw error;
+      if (editing) {
+        delete clean.id; delete clean.created_at; delete clean.updated_at; delete clean.qrcode_token;
+        const { error } = await supabase.from("colaboradores").update(clean).eq("id", editing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("colaboradores").insert(clean);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
-      toast.success("Colaborador cadastrado");
+      toast.success(editing ? "Colaborador atualizado" : "Colaborador cadastrado");
       qc.invalidateQueries({ queryKey: ["colaboradores"] });
       setOpen(false);
+      setEditing(null);
       setForm(emptyForm);
     },
     onError: (e: any) => toast.error(e.message),
   });
+
+  function openNew() { setEditing(null); setForm(emptyForm); setOpen(true); }
+  function openEdit(c: any) {
+    setEditing(c);
+    setForm({
+      nome: c.nome ?? "", cpf: c.cpf ?? "", rg: c.rg ?? "", funcao_atual: c.funcao_atual ?? "",
+      setor: c.setor ?? "", data_admissao: c.data_admissao ?? "", data_nascimento: c.data_nascimento ?? "",
+      status: c.status ?? "ativo", telefone: c.telefone ?? "", email: c.email ?? "",
+      email_corporativo: c.email_corporativo ?? "", endereco: c.endereco ?? "",
+    });
+    setOpen(true);
+  }
+
 
   const filtered = (list ?? []).filter((c: any) =>
     !q || c.nome?.toLowerCase().includes(q.toLowerCase()) || c.cpf?.includes(q) || c.setor?.toLowerCase().includes(q.toLowerCase())
@@ -62,16 +85,17 @@ function ColaboradoresPage() {
           <h1 className="text-2xl font-bold">Colaboradores</h1>
           <p className="text-sm text-muted-foreground">Cadastro completo com histórico, EPIs e treinamentos.</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" /> Novo colaborador</Button>
+            <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Novo colaborador</Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
-            <DialogHeader><DialogTitle>Novo colaborador</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editing ? "Editar colaborador" : "Novo colaborador"}</DialogTitle></DialogHeader>
             <ColaboradorForm form={form} setForm={setForm} onSubmit={() => mut.mutate(form)} loading={mut.isPending} />
           </DialogContent>
         </Dialog>
       </div>
+
 
       <Card>
         <CardHeader className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -84,15 +108,15 @@ function ColaboradoresPage() {
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((c: any) => (
-              <Link key={c.id} to="/colaboradores/$id" params={{ id: c.id }} className="block">
-                <div className="border rounded-lg p-4 hover:border-primary/60 hover:bg-muted/40 transition h-full">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="min-w-0">
-                      <div className="font-semibold truncate">{c.nome}</div>
-                      <div className="text-xs text-muted-foreground truncate">{c.funcao_atual || "Sem função"}</div>
-                    </div>
-                    <Badge variant={c.status === "ativo" ? "default" : "secondary"} className="shrink-0 capitalize">{c.status}</Badge>
-                  </div>
+              <div key={c.id} className="border rounded-lg p-4 hover:border-primary/60 hover:bg-muted/40 transition h-full flex flex-col">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <Link to="/colaboradores/$id" params={{ id: c.id }} className="min-w-0 flex-1">
+                    <div className="font-semibold truncate">{c.nome}</div>
+                    <div className="text-xs text-muted-foreground truncate">{c.funcao_atual || "Sem função"}</div>
+                  </Link>
+                  <Badge variant={c.status === "ativo" ? "default" : "secondary"} className="shrink-0 capitalize">{c.status}</Badge>
+                </div>
+                <Link to="/colaboradores/$id" params={{ id: c.id }} className="flex-1">
                   <dl className="space-y-1 text-xs">
                     <Row k="Setor" v={c.setor} />
                     <Row k="CPF" v={c.cpf} />
@@ -100,8 +124,16 @@ function ColaboradoresPage() {
                     <Row k="Tempo" v={tempoEmpresa(c.data_admissao)} />
                     {c.email_corporativo && <Row k="E-mail corp." v={c.email_corporativo} />}
                   </dl>
+                </Link>
+                <div className="pt-3 mt-3 border-t flex gap-2">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={(e) => { e.stopPropagation(); openEdit(c); }}>
+                    <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
+                  </Button>
+                  <Button size="sm" variant="ghost" asChild>
+                    <Link to="/colaboradores/$id" params={{ id: c.id }}>Detalhes</Link>
+                  </Button>
                 </div>
-              </Link>
+              </div>
             ))}
             {filtered.length === 0 && (
               <div className="col-span-full py-12 text-center text-muted-foreground text-sm">Nenhum colaborador encontrado.</div>
@@ -112,6 +144,7 @@ function ColaboradoresPage() {
     </div>
   );
 }
+
 
 function Row({ k, v }: { k: string; v?: string | null }) {
   return (

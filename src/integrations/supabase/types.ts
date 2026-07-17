@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      colaborador_nrs: {
+        Row: {
+          colaborador_id: string
+          created_at: string
+          data_realizacao: string | null
+          data_vencimento: string | null
+          id: string
+          nr_id: string
+          observacoes: string | null
+          updated_at: string
+        }
+        Insert: {
+          colaborador_id: string
+          created_at?: string
+          data_realizacao?: string | null
+          data_vencimento?: string | null
+          id?: string
+          nr_id: string
+          observacoes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          colaborador_id?: string
+          created_at?: string
+          data_realizacao?: string | null
+          data_vencimento?: string | null
+          id?: string
+          nr_id?: string
+          observacoes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "colaborador_nrs_colaborador_id_fkey"
+            columns: ["colaborador_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "colaborador_nrs_nr_id_fkey"
+            columns: ["nr_id"]
+            isOneToOne: false
+            referencedRelation: "normas_nr"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       colaboradores: {
         Row: {
           cpf: string | null
@@ -159,6 +207,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      epis_setor: {
+        Row: {
+          ca_padrao: string | null
+          created_at: string
+          id: string
+          setor: string
+          tipo_epi: string
+          vida_util_meses: number | null
+        }
+        Insert: {
+          ca_padrao?: string | null
+          created_at?: string
+          id?: string
+          setor: string
+          tipo_epi: string
+          vida_util_meses?: number | null
+        }
+        Update: {
+          ca_padrao?: string | null
+          created_at?: string
+          id?: string
+          setor?: string
+          tipo_epi?: string
+          vida_util_meses?: number | null
+        }
+        Relationships: []
       }
       eventos_calendario: {
         Row: {
@@ -341,10 +416,15 @@ export type Database = {
       treinamentos: {
         Row: {
           carga_horaria: number | null
+          concluido: boolean
           conteudo_programatico: string | null
           created_at: string
+          data_conclusao: string | null
+          data_hora: string | null
           fornecedor_id: string | null
           id: string
+          instrutor: string | null
+          local: string | null
           nome: string
           nr_id: string | null
           tipo: Database["public"]["Enums"]["tipo_treinamento"]
@@ -352,10 +432,15 @@ export type Database = {
         }
         Insert: {
           carga_horaria?: number | null
+          concluido?: boolean
           conteudo_programatico?: string | null
           created_at?: string
+          data_conclusao?: string | null
+          data_hora?: string | null
           fornecedor_id?: string | null
           id?: string
+          instrutor?: string | null
+          local?: string | null
           nome: string
           nr_id?: string | null
           tipo?: Database["public"]["Enums"]["tipo_treinamento"]
@@ -363,10 +448,15 @@ export type Database = {
         }
         Update: {
           carga_horaria?: number | null
+          concluido?: boolean
           conteudo_programatico?: string | null
           created_at?: string
+          data_conclusao?: string | null
+          data_hora?: string | null
           fornecedor_id?: string | null
           id?: string
+          instrutor?: string | null
+          local?: string | null
           nome?: string
           nr_id?: string | null
           tipo?: Database["public"]["Enums"]["tipo_treinamento"]

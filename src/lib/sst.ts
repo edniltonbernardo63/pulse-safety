@@ -47,8 +47,9 @@ export function fmtDate(d?: string | null): string {
 }
 
 export function statusLabel(s: VencStatus): string {
-  return { vencido: "Vencido", a_vencer: "A vencer", valido: "Válido", sem_data: "Sem data" }[s];
+  return { vencido: "Vencido", a_vencer: "Atenção", valido: "Em dia", sem_data: "Sem data" }[s];
 }
+
 
 export function statusBadgeClass(s: VencStatus): string {
   return {
