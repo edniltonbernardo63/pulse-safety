@@ -23,13 +23,17 @@ function QrView() {
     queryFn: async () => {
       const { data: c } = await supabase.from("colaboradores").select("*").eq("qrcode_token", token).maybeSingle();
       if (!c) throw notFound();
-      const { data: tr } = await supabase.from("treinamentos_realizados").select("*, treinamento:treinamentos(nome, nr:normas_nr(codigo))").eq("colaborador_id", c.id).order("data_realizacao", { ascending: false });
-      return { c, tr: tr ?? [] };
+      const [{ data: tr }, { data: cnr }] = await Promise.all([
+        supabase.from("treinamentos_realizados").select("*, treinamento:treinamentos(nome, nr:normas_nr(codigo))").eq("colaborador_id", c.id).order("data_realizacao", { ascending: false }),
+        supabase.from("colaborador_nrs" as any).select("*, nr:normas_nr(codigo, titulo)").eq("colaborador_id", c.id),
+      ]);
+      return { c, tr: tr ?? [], cnr: (cnr as any[]) ?? [] };
     },
   });
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
   if (!data) return null;
+
 
   return (
     <div className="min-h-screen bg-muted/30 py-8 px-4">
