@@ -37,10 +37,23 @@ function NRsPage() {
           <Card key={n.id} className="flex flex-col">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <Badge className="bg-primary text-primary-foreground">{n.codigo}</Badge>
+                {n.link_oficial ? (
+                  <a href={n.link_oficial} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:underline">
+                    <Badge className="bg-primary text-primary-foreground">{n.codigo}</Badge>
+                    <ExternalLink className="h-3 w-3 text-primary" />
+                  </a>
+                ) : (
+                  <Badge className="bg-primary text-primary-foreground">{n.codigo}</Badge>
+                )}
                 {n.periodicidade_meses && <span className="text-xs text-muted-foreground">Renov. {n.periodicidade_meses}m</span>}
               </div>
-              <CardTitle className="text-base mt-2 leading-tight">{n.titulo}</CardTitle>
+              {n.link_oficial ? (
+                <a href={n.link_oficial} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  <CardTitle className="text-base mt-2 leading-tight">{n.titulo}</CardTitle>
+                </a>
+              ) : (
+                <CardTitle className="text-base mt-2 leading-tight">{n.titulo}</CardTitle>
+              )}
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground space-y-2 flex-1 flex flex-col">
               <p className="flex-1">{n.resumo ?? ""}</p>
@@ -55,6 +68,7 @@ function NRsPage() {
             </CardContent>
           </Card>
         ))}
+
         {list.length === 0 && <div className="col-span-full py-10 text-center text-sm text-muted-foreground">Nenhuma NR encontrada.</div>}
       </div>
     </div>
