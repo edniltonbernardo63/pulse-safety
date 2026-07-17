@@ -56,6 +56,29 @@ function QrView() {
         </Card>
 
         <Card>
+          <CardHeader><CardTitle className="text-base">NRs vinculadas</CardTitle></CardHeader>
+          <CardContent>
+            {data.cnr.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma NR vinculada.</p>}
+            <div className="space-y-2">
+              {data.cnr.map((n: any) => {
+                const s = statusVencimento(n.data_vencimento);
+                return (
+                  <div key={n.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border">
+                    <div className="min-w-0">
+                      <div className="font-medium truncate">{n.nr?.codigo} — {n.nr?.titulo}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Realizado {fmtDate(n.data_realizacao)} · Vence {fmtDate(n.data_vencimento)}
+                      </div>
+                    </div>
+                    <Badge className={statusBadgeClass(s)}>{statusLabel(s)}</Badge>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
           <CardHeader><CardTitle className="text-base">Treinamentos</CardTitle></CardHeader>
           <CardContent>
             {data.tr.length === 0 && <p className="text-sm text-muted-foreground">Nenhum treinamento registrado.</p>}
@@ -78,6 +101,7 @@ function QrView() {
             </div>
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
