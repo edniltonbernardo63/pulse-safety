@@ -23,13 +23,17 @@ function QrView() {
     queryFn: async () => {
       const { data: c } = await supabase.from("colaboradores").select("*").eq("qrcode_token", token).maybeSingle();
       if (!c) throw notFound();
-      const { data: tr } = await supabase.from("treinamentos_realizados").select("*, treinamento:treinamentos(nome, nr:normas_nr(codigo))").eq("colaborador_id", c.id).order("data_realizacao", { ascending: false });
-      return { c, tr: tr ?? [] };
+      const [{ data: tr }, { data: cnr }] = await Promise.all([
+        supabase.from("treinamentos_realizados").select("*, treinamento:treinamentos(nome, nr:normas_nr(codigo))").eq("colaborador_id", c.id).order("data_realizacao", { ascending: false }),
+        supabase.from("colaborador_nrs" as any).select("*, nr:normas_nr(codigo, titulo)").eq("colaborador_id", c.id),
+      ]);
+      return { c, tr: tr ?? [], cnr: (cnr as any[]) ?? [] };
     },
   });
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
   if (!data) return null;
+
 
   return (
     <div className="min-h-screen bg-muted/30 py-8 px-4">
@@ -48,6 +52,29 @@ function QrView() {
             <Info label="Setor" v={data.c.setor} />
             <Info label="Admissão" v={fmtDate(data.c.data_admissao)} />
             <Info label="Tempo de empresa" v={tempoEmpresa(data.c.data_admissao)} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="text-base">NRs vinculadas</CardTitle></CardHeader>
+          <CardContent>
+            {data.cnr.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma NR vinculada.</p>}
+            <div className="space-y-2">
+              {data.cnr.map((n: any) => {
+                const s = statusVencimento(n.data_vencimento);
+                return (
+                  <div key={n.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border">
+                    <div className="min-w-0">
+                      <div className="font-medium truncate">{n.nr?.codigo} — {n.nr?.titulo}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Realizado {fmtDate(n.data_realizacao)} · Vence {fmtDate(n.data_vencimento)}
+                      </div>
+                    </div>
+                    <Badge className={statusBadgeClass(s)}>{statusLabel(s)}</Badge>
+                  </div>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
 
@@ -74,6 +101,7 @@ function QrView() {
             </div>
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
