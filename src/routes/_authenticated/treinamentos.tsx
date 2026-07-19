@@ -181,7 +181,20 @@ function TreinamentosPage() {
               <div><Label>Local</Label><Input value={form.local} onChange={(e) => setForm({ ...form, local: e.target.value })} /></div>
               <div><Label>Instrutor</Label><Input value={form.instrutor} onChange={(e) => setForm({ ...form, instrutor: e.target.value })} /></div>
               <div><Label>Carga horária (h)</Label><Input type="number" value={form.carga_horaria} onChange={(e) => setForm({ ...form, carga_horaria: e.target.value })} /></div>
-              <div><Label>Validade (meses)</Label><Input type="number" placeholder="Ex: 12, 24" value={form.validade_meses} onChange={(e) => setForm({ ...form, validade_meses: e.target.value })} /></div>
+              <div>
+                <Label>Validade</Label>
+                <div className="flex gap-1">
+                  <Input type="number" min="1" placeholder="Ex: 12" value={form.validade_valor} onChange={(e) => setForm({ ...form, validade_valor: e.target.value })} />
+                  <Select value={form.validade_unidade} onValueChange={(v) => setForm({ ...form, validade_unidade: v })}>
+                    <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dias">Dias</SelectItem>
+                      <SelectItem value="meses">Meses</SelectItem>
+                      <SelectItem value="anos">Anos</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <div className="col-span-2">
                 <Label>Fornecedor</Label>
                 <Select value={form.fornecedor_id} onValueChange={(v) => setForm({ ...form, fornecedor_id: v })}>
