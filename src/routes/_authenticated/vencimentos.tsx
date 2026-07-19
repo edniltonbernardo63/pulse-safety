@@ -104,6 +104,13 @@ function VencimentosPage() {
               <SelectItem value="todas">Todas NRs</SelectItem>
               {nrOpts.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
             </SelectContent>
+          <Select value={origemF} onValueChange={setOrigemF}>
+            <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todas origens</SelectItem>
+              <SelectItem value="treinamento">Treinamento</SelectItem>
+              <SelectItem value="palestra">Palestra</SelectItem>
+            </SelectContent>
           </Select>
           <span className="text-sm text-muted-foreground ml-auto">{filtered.length} registros</span>
         </CardHeader>
