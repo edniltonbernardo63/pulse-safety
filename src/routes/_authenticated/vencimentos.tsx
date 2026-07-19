@@ -127,7 +127,7 @@ function VencimentosPage() {
                   <tr key={r.key} className="border-b last:border-0">
                     <td className="py-2 font-medium">{r.colaborador_nome}</td>
                     <td className="text-muted-foreground">{r.setor ?? "—"}</td>
-                    <td><Badge variant="outline" className="text-[10px] capitalize">{r.origem === "nr" ? "NR" : "Treinamento"}</Badge></td>
+                    <td><Badge variant="outline" className="text-[10px] capitalize">{r.origem === "palestra" ? "Palestra" : "Treinamento"}</Badge></td>
                     <td className="max-w-xs truncate">{r.descricao}</td>
                     <td>{r.nr ?? "—"}</td>
                     <td>{fmtDate(r.data_realizacao)}</td>
