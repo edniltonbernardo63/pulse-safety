@@ -235,7 +235,7 @@ function ListaCatalogo({ items, onEdit, onPresenca, onConcluir }: any) {
             <div className="text-xs text-muted-foreground space-y-0.5">
               {t.data_hora && <div className="flex items-center gap-1"><CalIcon className="h-3 w-3" /> <b className="text-foreground">{fmtDate(t.data_hora)}</b> {new Date(t.data_hora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>}
               <div>Carga: <b className="text-foreground">{t.carga_horaria ? `${t.carga_horaria}h` : "—"}</b></div>
-              <div>Validade: <b className="text-foreground">{t.validade_meses ?? t.nr?.periodicidade_meses ?? "—"} {(t.validade_meses ?? t.nr?.periodicidade_meses) ? "meses" : ""}</b></div>
+              <div>Validade: <b className="text-foreground">{t.validade_valor ? `${t.validade_valor} ${t.validade_unidade}` : (t.validade_meses ? `${t.validade_meses} meses` : (t.nr?.periodicidade_meses ? `${t.nr.periodicidade_meses} meses` : "—"))}</b></div>
               <div>Local: <b className="text-foreground">{t.local ?? "—"}</b></div>
             </div>
             <div className="flex gap-1">
