@@ -58,13 +58,24 @@ function TreinamentosPage() {
 
   const save = useMutation({
     mutationFn: async () => {
+      const valor = form.validade_valor ? Number(form.validade_valor) : null;
+      const unidade = valor ? form.validade_unidade : null;
+      // manter validade_meses coerente (para NRs/certificados que usam meses)
+      let meses: number | null = null;
+      if (valor && unidade) {
+        if (unidade === "meses") meses = valor;
+        else if (unidade === "anos") meses = valor * 12;
+        else meses = Math.max(1, Math.round(valor / 30));
+      }
       const payload: any = {
         nome: form.nome,
         tipo: form.tipo,
         nr_id: form.nr_id || null,
         fornecedor_id: form.fornecedor_id || null,
         carga_horaria: form.carga_horaria ? Number(form.carga_horaria) : null,
-        validade_meses: form.validade_meses ? Number(form.validade_meses) : null,
+        validade_valor: valor,
+        validade_unidade: unidade,
+        validade_meses: meses,
         conteudo_programatico: form.conteudo_programatico || null,
         data_hora: form.data_hora || null,
         local: form.local || null,
