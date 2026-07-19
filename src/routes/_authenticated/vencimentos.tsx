@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/vencimentos")({
 
 type Row = {
   key: string;
-  origem: "treinamento" | "nr";
+  origem: "treinamento" | "palestra";
   colaborador_id: string;
   colaborador_nome: string;
   setor: string | null;
@@ -31,56 +31,39 @@ function VencimentosPage() {
   const [statusF, setStatusF] = useState("todos");
   const [nrF, setNrF] = useState("todas");
   const [setorF, setSetorF] = useState("todos");
+  const [origemF, setOrigemF] = useState("todos");
 
   const { data: trReal } = useQuery({
     queryKey: ["venc-tr"],
-    queryFn: async () => (await supabase.from("treinamentos_realizados").select("id, data_realizacao, data_vencimento, colaborador:colaboradores(id, nome, setor, funcao_atual), treinamento:treinamentos(nome, nr:normas_nr(codigo))")).data ?? [],
-  });
-  const { data: cnrs } = useQuery({
-    queryKey: ["venc-cnr"],
-    queryFn: async () => (await supabase.from("colaborador_nrs" as any).select("id, data_realizacao, data_vencimento, colaborador:colaboradores(id, nome, setor, funcao_atual), nr:normas_nr(codigo, titulo)")).data ?? [],
+    queryFn: async () => (await supabase.from("treinamentos_realizados").select("id, data_realizacao, data_vencimento, colaborador:colaboradores(id, nome, setor, funcao_atual), treinamento:treinamentos(nome, tipo, nr:normas_nr(codigo))")).data ?? [],
   });
   const { data: nrs } = useQuery({
     queryKey: ["nrs-list"],
     queryFn: async () => (await supabase.from("normas_nr").select("codigo").order("codigo")).data ?? [],
   });
 
-  const rows: Row[] = useMemo(() => {
-    const a: Row[] = (trReal ?? []).map((t: any) => ({
-      key: "t-" + t.id,
-      origem: "treinamento",
-      colaborador_id: t.colaborador?.id,
-      colaborador_nome: t.colaborador?.nome ?? "—",
-      setor: t.colaborador?.setor ?? null,
-      funcao: t.colaborador?.funcao_atual ?? null,
-      descricao: t.treinamento?.nome ?? "—",
-      nr: t.treinamento?.nr?.codigo ?? null,
-      data_realizacao: t.data_realizacao,
-      data_vencimento: t.data_vencimento,
-    }));
-    const b: Row[] = ((cnrs as any[]) ?? []).map((n: any) => ({
-      key: "n-" + n.id,
-      origem: "nr",
-      colaborador_id: n.colaborador?.id,
-      colaborador_nome: n.colaborador?.nome ?? "—",
-      setor: n.colaborador?.setor ?? null,
-      funcao: n.colaborador?.funcao_atual ?? null,
-      descricao: n.nr?.titulo ?? "NR vinculada",
-      nr: n.nr?.codigo ?? null,
-      data_realizacao: n.data_realizacao,
-      data_vencimento: n.data_vencimento,
-    }));
-    return [...a, ...b];
-  }, [trReal, cnrs]);
+  const rows: Row[] = useMemo(() => (trReal ?? []).map((t: any) => ({
+    key: "t-" + t.id,
+    origem: (t.treinamento?.tipo === "palestra" ? "palestra" : "treinamento") as "treinamento" | "palestra",
+    colaborador_id: t.colaborador?.id,
+    colaborador_nome: t.colaborador?.nome ?? "—",
+    setor: t.colaborador?.setor ?? null,
+    funcao: t.colaborador?.funcao_atual ?? null,
+    descricao: t.treinamento?.nome ?? "—",
+    nr: t.treinamento?.nr?.codigo ?? null,
+    data_realizacao: t.data_realizacao,
+    data_vencimento: t.data_vencimento,
+  })), [trReal]);
 
   const filtered = useMemo(() => rows.filter((r) => {
     const s = statusVencimento(r.data_vencimento);
     if (statusF !== "todos" && s !== statusF) return false;
+    if (origemF !== "todos" && r.origem !== origemF) return false;
     if (nrF !== "todas" && r.nr !== nrF) return false;
     if (setorF !== "todos" && r.setor !== setorF) return false;
     if (q && !`${r.colaborador_nome} ${r.setor ?? ""} ${r.descricao} ${r.nr ?? ""}`.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
-  }).sort((x, y) => (x.data_vencimento ?? "9").localeCompare(y.data_vencimento ?? "9")), [rows, q, statusF, nrF, setorF]);
+  }).sort((x, y) => (x.data_vencimento ?? "9").localeCompare(y.data_vencimento ?? "9")), [rows, q, statusF, nrF, setorF, origemF]);
 
   const nrOpts = (() => {
     const seen = new Set<string>();
@@ -122,6 +105,14 @@ function VencimentosPage() {
               {nrOpts.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Select value={origemF} onValueChange={setOrigemF}>
+            <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todas origens</SelectItem>
+              <SelectItem value="treinamento">Treinamento</SelectItem>
+              <SelectItem value="palestra">Palestra</SelectItem>
+            </SelectContent>
+          </Select>
           <span className="text-sm text-muted-foreground ml-auto">{filtered.length} registros</span>
         </CardHeader>
         <CardContent className="overflow-x-auto">
@@ -136,7 +127,7 @@ function VencimentosPage() {
                   <tr key={r.key} className="border-b last:border-0">
                     <td className="py-2 font-medium">{r.colaborador_nome}</td>
                     <td className="text-muted-foreground">{r.setor ?? "—"}</td>
-                    <td><Badge variant="outline" className="text-[10px] capitalize">{r.origem === "nr" ? "NR" : "Treinamento"}</Badge></td>
+                    <td><Badge variant="outline" className="text-[10px] capitalize">{r.origem === "palestra" ? "Palestra" : "Treinamento"}</Badge></td>
                     <td className="max-w-xs truncate">{r.descricao}</td>
                     <td>{r.nr ?? "—"}</td>
                     <td>{fmtDate(r.data_realizacao)}</td>

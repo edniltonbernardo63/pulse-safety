@@ -175,6 +175,8 @@ export type Database = {
           observacoes: string | null
           tipo: string
           vida_util_meses: number | null
+          vida_util_unidade: Database["public"]["Enums"]["unidade_tempo"] | null
+          vida_util_valor: number | null
         }
         Insert: {
           ca_numero?: string | null
@@ -186,6 +188,10 @@ export type Database = {
           observacoes?: string | null
           tipo: string
           vida_util_meses?: number | null
+          vida_util_unidade?:
+            | Database["public"]["Enums"]["unidade_tempo"]
+            | null
+          vida_util_valor?: number | null
         }
         Update: {
           ca_numero?: string | null
@@ -197,6 +203,10 @@ export type Database = {
           observacoes?: string | null
           tipo?: string
           vida_util_meses?: number | null
+          vida_util_unidade?:
+            | Database["public"]["Enums"]["unidade_tempo"]
+            | null
+          vida_util_valor?: number | null
         }
         Relationships: [
           {
@@ -429,6 +439,8 @@ export type Database = {
           nr_id: string | null
           tipo: Database["public"]["Enums"]["tipo_treinamento"]
           validade_meses: number | null
+          validade_unidade: Database["public"]["Enums"]["unidade_tempo"] | null
+          validade_valor: number | null
         }
         Insert: {
           carga_horaria?: number | null
@@ -445,6 +457,8 @@ export type Database = {
           nr_id?: string | null
           tipo?: Database["public"]["Enums"]["tipo_treinamento"]
           validade_meses?: number | null
+          validade_unidade?: Database["public"]["Enums"]["unidade_tempo"] | null
+          validade_valor?: number | null
         }
         Update: {
           carga_horaria?: number | null
@@ -461,6 +475,8 @@ export type Database = {
           nr_id?: string | null
           tipo?: Database["public"]["Enums"]["tipo_treinamento"]
           validade_meses?: number | null
+          validade_unidade?: Database["public"]["Enums"]["unidade_tempo"] | null
+          validade_valor?: number | null
         }
         Relationships: [
           {
@@ -567,6 +583,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "tecnico" | "consulta"
       tipo_treinamento: "treinamento" | "palestra"
+      unidade_tempo: "dias" | "meses" | "anos"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -696,6 +713,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "tecnico", "consulta"],
       tipo_treinamento: ["treinamento", "palestra"],
+      unidade_tempo: ["dias", "meses", "anos"],
     },
   },
 } as const

@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/treinamentos")({
 
 const emptyForm = {
   nome: "", tipo: "treinamento", nr_id: "", fornecedor_id: "",
-  carga_horaria: "", validade_meses: "", conteudo_programatico: "",
+  carga_horaria: "", validade_valor: "", validade_unidade: "meses", conteudo_programatico: "",
   data_hora: "", local: "", instrutor: "",
 };
 
@@ -58,13 +58,24 @@ function TreinamentosPage() {
 
   const save = useMutation({
     mutationFn: async () => {
+      const valor = form.validade_valor ? Number(form.validade_valor) : null;
+      const unidade = valor ? form.validade_unidade : null;
+      // manter validade_meses coerente (para NRs/certificados que usam meses)
+      let meses: number | null = null;
+      if (valor && unidade) {
+        if (unidade === "meses") meses = valor;
+        else if (unidade === "anos") meses = valor * 12;
+        else meses = Math.max(1, Math.round(valor / 30));
+      }
       const payload: any = {
         nome: form.nome,
         tipo: form.tipo,
         nr_id: form.nr_id || null,
         fornecedor_id: form.fornecedor_id || null,
         carga_horaria: form.carga_horaria ? Number(form.carga_horaria) : null,
-        validade_meses: form.validade_meses ? Number(form.validade_meses) : null,
+        validade_valor: valor,
+        validade_unidade: unidade,
+        validade_meses: meses,
         conteudo_programatico: form.conteudo_programatico || null,
         data_hora: form.data_hora || null,
         local: form.local || null,
@@ -107,7 +118,8 @@ function TreinamentosPage() {
       nr_id: t.nr_id ?? "",
       fornecedor_id: t.fornecedor_id ?? "",
       carga_horaria: t.carga_horaria?.toString() ?? "",
-      validade_meses: t.validade_meses?.toString() ?? "",
+      validade_valor: (t.validade_valor ?? t.validade_meses)?.toString() ?? "",
+      validade_unidade: t.validade_unidade ?? "meses",
       conteudo_programatico: t.conteudo_programatico ?? "",
       data_hora: t.data_hora ? t.data_hora.slice(0, 16) : "",
       local: t.local ?? "",
@@ -169,7 +181,20 @@ function TreinamentosPage() {
               <div><Label>Local</Label><Input value={form.local} onChange={(e) => setForm({ ...form, local: e.target.value })} /></div>
               <div><Label>Instrutor</Label><Input value={form.instrutor} onChange={(e) => setForm({ ...form, instrutor: e.target.value })} /></div>
               <div><Label>Carga horária (h)</Label><Input type="number" value={form.carga_horaria} onChange={(e) => setForm({ ...form, carga_horaria: e.target.value })} /></div>
-              <div><Label>Validade (meses)</Label><Input type="number" placeholder="Ex: 12, 24" value={form.validade_meses} onChange={(e) => setForm({ ...form, validade_meses: e.target.value })} /></div>
+              <div>
+                <Label>Validade</Label>
+                <div className="flex gap-1">
+                  <Input type="number" min="1" placeholder="Ex: 12" value={form.validade_valor} onChange={(e) => setForm({ ...form, validade_valor: e.target.value })} />
+                  <Select value={form.validade_unidade} onValueChange={(v) => setForm({ ...form, validade_unidade: v })}>
+                    <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dias">Dias</SelectItem>
+                      <SelectItem value="meses">Meses</SelectItem>
+                      <SelectItem value="anos">Anos</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <div className="col-span-2">
                 <Label>Fornecedor</Label>
                 <Select value={form.fornecedor_id} onValueChange={(v) => setForm({ ...form, fornecedor_id: v })}>
@@ -210,7 +235,7 @@ function ListaCatalogo({ items, onEdit, onPresenca, onConcluir }: any) {
             <div className="text-xs text-muted-foreground space-y-0.5">
               {t.data_hora && <div className="flex items-center gap-1"><CalIcon className="h-3 w-3" /> <b className="text-foreground">{fmtDate(t.data_hora)}</b> {new Date(t.data_hora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>}
               <div>Carga: <b className="text-foreground">{t.carga_horaria ? `${t.carga_horaria}h` : "—"}</b></div>
-              <div>Validade: <b className="text-foreground">{t.validade_meses ?? t.nr?.periodicidade_meses ?? "—"} {(t.validade_meses ?? t.nr?.periodicidade_meses) ? "meses" : ""}</b></div>
+              <div>Validade: <b className="text-foreground">{t.validade_valor ? `${t.validade_valor} ${t.validade_unidade}` : (t.validade_meses ? `${t.validade_meses} meses` : (t.nr?.periodicidade_meses ? `${t.nr.periodicidade_meses} meses` : "—"))}</b></div>
               <div>Local: <b className="text-foreground">{t.local ?? "—"}</b></div>
             </div>
             <div className="flex gap-1">
