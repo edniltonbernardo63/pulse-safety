@@ -104,7 +104,6 @@ function VencimentosPage() {
               <SelectItem value="todas">Todas NRs</SelectItem>
               {nrOpts.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
             </SelectContent>
-            </SelectContent>
           </Select>
           <Select value={origemF} onValueChange={setOrigemF}>
             <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
