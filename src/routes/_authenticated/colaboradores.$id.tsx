@@ -162,7 +162,16 @@ function ColaboradorDetalhe() {
         </Card>
       </div>
 
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-5">
+        <ResumoCard label="Total" value={resumo.total} tone="default" />
+        <ResumoCard label="Vigentes" value={resumo.vigente} tone="success" />
+        <ResumoCard label="A vencer" value={resumo.vencer} tone="warn" />
+        <ResumoCard label="Vencidos" value={resumo.vencido} tone="danger" />
+        <ResumoCard label="Último" value={resumo.ultimo ? fmtDate(resumo.ultimo.data_realizacao) : "—"} tone="default" small />
+      </div>
+
       <Tabs defaultValue="nrs">
+
         <TabsList>
           <TabsTrigger value="nrs">NRs vinculadas</TabsTrigger>
           <TabsTrigger value="tr">Treinamentos</TabsTrigger>
