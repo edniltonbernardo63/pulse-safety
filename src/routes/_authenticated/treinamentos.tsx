@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/treinamentos")({
 const emptyForm = {
   nome: "", tipo: "treinamento", nr_id: "", fornecedor_id: "",
   carga_horaria: "", validade_valor: "", validade_unidade: "meses", conteudo_programatico: "",
-  data_hora: "", local: "", instrutor: "",
+  data_hora: "", local: "", instrutor: "", ativo: true,
 };
 
 function TreinamentosPage() {
