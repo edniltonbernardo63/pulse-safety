@@ -252,8 +252,10 @@ function ListaCatalogo({ items, onEdit, onPresenca, onConcluir }: any) {
               <div className="min-w-0">
                 <div className="font-semibold truncate">{t.nome}</div>
                 <div className="flex gap-1 mt-1 flex-wrap">
+                  <Badge variant="outline" className="text-[10px] capitalize">{labelTipoTreinamento(t.tipo)}</Badge>
                   {t.nr?.codigo && <Badge variant="secondary" className="text-xs">{t.nr.codigo}</Badge>}
                   {t.concluido && <Badge className="text-xs bg-success text-success-foreground">Concluído</Badge>}
+                  {t.ativo === false && <Badge variant="destructive" className="text-[10px]">Inativo</Badge>}
                 </div>
               </div>
               <Button size="icon" variant="ghost" onClick={() => onEdit(t)}><Pencil className="h-3.5 w-3.5" /></Button>
