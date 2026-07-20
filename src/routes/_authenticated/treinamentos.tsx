@@ -125,6 +125,7 @@ function TreinamentosPage() {
       data_hora: t.data_hora ? t.data_hora.slice(0, 16) : "",
       local: t.local ?? "",
       instrutor: t.instrutor ?? "",
+      ativo: t.ativo ?? true,
     });
     setOpen(true);
   }
