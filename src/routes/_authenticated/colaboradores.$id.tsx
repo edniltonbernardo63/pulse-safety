@@ -404,7 +404,18 @@ function QrCodeModal({ open, onClose, url, nome }: { open: boolean; onClose: () 
   );
 }
 
+function ResumoCard({ label, value, tone, small }: { label: string; value: any; tone: "default" | "success" | "warn" | "danger"; small?: boolean }) {
+  const cls = tone === "success" ? "text-success" : tone === "warn" ? "text-warning" : tone === "danger" ? "text-destructive" : "text-foreground";
+  return (
+    <Card><CardContent className="p-3">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={`font-bold ${small ? "text-sm" : "text-2xl"} ${cls}`}>{value}</div>
+    </CardContent></Card>
+  );
+}
+
 function Info({ label, v, className }: { label: string; v?: string | null; className?: string }) {
+
   return (
     <div className={className}>
       <dt className="text-xs text-muted-foreground">{label}</dt>
