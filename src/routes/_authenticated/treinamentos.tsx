@@ -13,7 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Printer, Pencil, ClipboardList, CheckCircle2, Calendar as CalIcon } from "lucide-react";
 import { toast } from "sonner";
-import { fmtDate } from "@/lib/sst";
+import { fmtDate, TIPOS_TREINAMENTO, labelTipoTreinamento } from "@/lib/sst";
 import logo from "@/assets/logo.png";
 
 export const Route = createFileRoute("/_authenticated/treinamentos")({
