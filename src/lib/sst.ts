@@ -14,6 +14,46 @@ export const SETORES = [
 
 export const STATUS_COLAB = ["ativo", "inativo", "afastado", "ferias"] as const;
 
+export const TIPOS_TREINAMENTO = [
+  { value: "treinamento", label: "Treinamento" },
+  { value: "palestra", label: "Palestra" },
+  { value: "integracao", label: "Integração" },
+  { value: "workshop", label: "Workshop" },
+  { value: "dds", label: "DDS" },
+  { value: "personalizado", label: "Personalizado" },
+] as const;
+
+export function labelTipoTreinamento(t?: string | null): string {
+  return TIPOS_TREINAMENTO.find((x) => x.value === t)?.label ?? "Treinamento";
+}
+
+export type PeriodPreset = "todos" | "hoje" | "7d" | "30d" | "mes_atual" | "mes_anterior" | "ano_atual" | "custom";
+
+export function periodRange(preset: PeriodPreset, customStart?: string, customEnd?: string): { start: Date | null; end: Date | null } {
+  const now = new Date();
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+  switch (preset) {
+    case "hoje": return { start: startOfDay(now), end: endOfDay(now) };
+    case "7d": { const s = new Date(now); s.setDate(s.getDate() - 6); return { start: startOfDay(s), end: endOfDay(now) }; }
+    case "30d": { const s = new Date(now); s.setDate(s.getDate() - 29); return { start: startOfDay(s), end: endOfDay(now) }; }
+    case "mes_atual": return { start: new Date(now.getFullYear(), now.getMonth(), 1), end: endOfDay(new Date(now.getFullYear(), now.getMonth() + 1, 0)) };
+    case "mes_anterior": return { start: new Date(now.getFullYear(), now.getMonth() - 1, 1), end: endOfDay(new Date(now.getFullYear(), now.getMonth(), 0)) };
+    case "ano_atual": return { start: new Date(now.getFullYear(), 0, 1), end: endOfDay(new Date(now.getFullYear(), 11, 31)) };
+    case "custom": return { start: customStart ? parseISO(customStart) : null, end: customEnd ? endOfDay(parseISO(customEnd)) : null };
+    default: return { start: null, end: null };
+  }
+}
+
+export function inRange(dateStr: string | null | undefined, range: { start: Date | null; end: Date | null }): boolean {
+  if (!range.start && !range.end) return true;
+  if (!dateStr) return false;
+  const d = parseISO(dateStr);
+  if (range.start && d < range.start) return false;
+  if (range.end && d > range.end) return false;
+  return true;
+}
+
 export function statusVencimento(dataVencimento: string | null | undefined): VencStatus {
   if (!dataVencimento) return "sem_data";
   const d = typeof dataVencimento === "string" ? parseISO(dataVencimento) : dataVencimento;

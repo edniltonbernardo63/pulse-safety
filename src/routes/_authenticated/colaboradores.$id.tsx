@@ -92,6 +92,20 @@ function ColaboradorDetalhe() {
     return map;
   }, [epis]);
 
+  const resumo = useMemo(() => {
+    const list = treinamentos ?? [];
+    let vigente = 0, vencer = 0, vencido = 0, semData = 0;
+    list.forEach((t: any) => {
+      const s = statusVencimento(t.data_vencimento);
+      if (s === "valido") vigente++;
+      else if (s === "a_vencer") vencer++;
+      else if (s === "vencido") vencido++;
+      else semData++;
+    });
+    const ordenados = [...list].sort((a: any, b: any) => (b.data_realizacao ?? "").localeCompare(a.data_realizacao ?? ""));
+    return { total: list.length, vigente, vencer, vencido, semData, ultimo: ordenados[0] };
+  }, [treinamentos]);
+
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" size="sm">
@@ -148,7 +162,16 @@ function ColaboradorDetalhe() {
         </Card>
       </div>
 
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-5">
+        <ResumoCard label="Total" value={resumo.total} tone="default" />
+        <ResumoCard label="Vigentes" value={resumo.vigente} tone="success" />
+        <ResumoCard label="A vencer" value={resumo.vencer} tone="warn" />
+        <ResumoCard label="Vencidos" value={resumo.vencido} tone="danger" />
+        <ResumoCard label="Último" value={resumo.ultimo ? fmtDate(resumo.ultimo.data_realizacao) : "—"} tone="default" small />
+      </div>
+
       <Tabs defaultValue="nrs">
+
         <TabsList>
           <TabsTrigger value="nrs">NRs vinculadas</TabsTrigger>
           <TabsTrigger value="tr">Treinamentos</TabsTrigger>
@@ -381,7 +404,18 @@ function QrCodeModal({ open, onClose, url, nome }: { open: boolean; onClose: () 
   );
 }
 
+function ResumoCard({ label, value, tone, small }: { label: string; value: any; tone: "default" | "success" | "warn" | "danger"; small?: boolean }) {
+  const cls = tone === "success" ? "text-success" : tone === "warn" ? "text-warning" : tone === "danger" ? "text-destructive" : "text-foreground";
+  return (
+    <Card><CardContent className="p-3">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={`font-bold ${small ? "text-sm" : "text-2xl"} ${cls}`}>{value}</div>
+    </CardContent></Card>
+  );
+}
+
 function Info({ label, v, className }: { label: string; v?: string | null; className?: string }) {
+
   return (
     <div className={className}>
       <dt className="text-xs text-muted-foreground">{label}</dt>

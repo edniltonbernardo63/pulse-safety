@@ -9,11 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 import { Badge } from "@/components/ui/badge";
 import { Plus, Printer, Pencil, ClipboardList, CheckCircle2, Calendar as CalIcon } from "lucide-react";
 import { toast } from "sonner";
-import { fmtDate } from "@/lib/sst";
+import { fmtDate, TIPOS_TREINAMENTO, labelTipoTreinamento } from "@/lib/sst";
 import logo from "@/assets/logo.png";
 
 export const Route = createFileRoute("/_authenticated/treinamentos")({
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/treinamentos")({
 const emptyForm = {
   nome: "", tipo: "treinamento", nr_id: "", fornecedor_id: "",
   carga_horaria: "", validade_valor: "", validade_unidade: "meses", conteudo_programatico: "",
-  data_hora: "", local: "", instrutor: "",
+  data_hora: "", local: "", instrutor: "", ativo: true,
 };
 
 function TreinamentosPage() {
@@ -80,6 +80,7 @@ function TreinamentosPage() {
         data_hora: form.data_hora || null,
         local: form.local || null,
         instrutor: form.instrutor || null,
+        ativo: form.ativo ?? true,
       };
       if (editing) {
         const { error } = await supabase.from("treinamentos").update(payload).eq("id", editing.id);
@@ -124,39 +125,55 @@ function TreinamentosPage() {
       data_hora: t.data_hora ? t.data_hora.slice(0, 16) : "",
       local: t.local ?? "",
       instrutor: t.instrutor ?? "",
+      ativo: t.ativo ?? true,
     });
     setOpen(true);
   }
 
-  const treinamentos = (catalog ?? []).filter((t: any) => t.tipo === "treinamento");
-  const palestras = (catalog ?? []).filter((t: any) => t.tipo === "palestra");
+  const [tipoFiltro, setTipoFiltro] = useState<string>("todos");
+  const [statusFiltro, setStatusFiltro] = useState<string>("ativos");
+  const items = (catalog ?? []).filter((t: any) => {
+    if (tipoFiltro !== "todos" && t.tipo !== tipoFiltro) return false;
+    if (statusFiltro === "ativos" && t.ativo === false) return false;
+    if (statusFiltro === "inativos" && t.ativo !== false) return false;
+    return true;
+  });
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Treinamentos e palestras</h1>
-          <p className="text-sm text-muted-foreground">Catálogo, agenda, presenças e conclusão de turmas.</p>
+          <h1 className="text-2xl font-bold">Treinamentos e capacitações</h1>
+          <p className="text-sm text-muted-foreground">Cadastre treinamentos, palestras, DDS, integrações, workshops e eventos personalizados de qualquer setor.</p>
         </div>
         <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Novo</Button>
       </div>
 
-      <Tabs defaultValue="treinamento">
-        <TabsList>
-          <TabsTrigger value="treinamento">Treinamentos</TabsTrigger>
-          <TabsTrigger value="palestra">Palestras</TabsTrigger>
-        </TabsList>
-        <TabsContent value="treinamento">
-          <ListaCatalogo items={treinamentos} onEdit={openEdit} onPresenca={setPresenca} onConcluir={setConcluir} />
-        </TabsContent>
-        <TabsContent value="palestra">
-          <ListaCatalogo items={palestras} onEdit={openEdit} onPresenca={setPresenca} onConcluir={setConcluir} />
-        </TabsContent>
-      </Tabs>
+      <div className="flex flex-wrap gap-2 items-center">
+        <Select value={tipoFiltro} onValueChange={setTipoFiltro}>
+          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os tipos</SelectItem>
+            {TIPOS_TREINAMENTO.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={statusFiltro} onValueChange={setStatusFiltro}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ativos">Ativos</SelectItem>
+            <SelectItem value="inativos">Inativos</SelectItem>
+            <SelectItem value="todos">Todos</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-sm text-muted-foreground ml-auto">{items.length} registros</span>
+      </div>
+
+      <ListaCatalogo items={items} onEdit={openEdit} onPresenca={setPresenca} onConcluir={setConcluir} />
+
 
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>{editing ? "Editar" : "Novo"} {form.tipo === "palestra" ? "palestra" : "treinamento"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? "Editar" : "Novo"} {labelTipoTreinamento(form.tipo).toLowerCase()}</DialogTitle></DialogHeader>
           <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2"><Label>Nome</Label><Input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} /></div>
@@ -165,13 +182,12 @@ function TreinamentosPage() {
                 <Select value={form.tipo} onValueChange={(v) => setForm({ ...form, tipo: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="treinamento">Treinamento</SelectItem>
-                    <SelectItem value="palestra">Palestra</SelectItem>
+                    {TIPOS_TREINAMENTO.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>NR</Label>
+                <Label>NR (opcional)</Label>
                 <Select value={form.nr_id} onValueChange={(v) => setForm({ ...form, nr_id: v })}>
                   <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>{nrOpts.map((n: any) => <SelectItem key={n.id} value={n.id}>{n.codigo} — {n.titulo}</SelectItem>)}</SelectContent>
@@ -195,8 +211,18 @@ function TreinamentosPage() {
                   </Select>
                 </div>
               </div>
+              <div>
+                <Label>Status</Label>
+                <Select value={form.ativo ? "ativo" : "inativo"} onValueChange={(v) => setForm({ ...form, ativo: v === "ativo" })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="inativo">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="col-span-2">
-                <Label>Fornecedor</Label>
+                <Label>Empresa responsável pelo treinamento</Label>
                 <Select value={form.fornecedor_id} onValueChange={(v) => setForm({ ...form, fornecedor_id: v })}>
                   <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>{(fornecedores ?? []).map((f: any) => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}</SelectContent>
@@ -226,8 +252,10 @@ function ListaCatalogo({ items, onEdit, onPresenca, onConcluir }: any) {
               <div className="min-w-0">
                 <div className="font-semibold truncate">{t.nome}</div>
                 <div className="flex gap-1 mt-1 flex-wrap">
+                  <Badge variant="outline" className="text-[10px] capitalize">{labelTipoTreinamento(t.tipo)}</Badge>
                   {t.nr?.codigo && <Badge variant="secondary" className="text-xs">{t.nr.codigo}</Badge>}
                   {t.concluido && <Badge className="text-xs bg-success text-success-foreground">Concluído</Badge>}
+                  {t.ativo === false && <Badge variant="destructive" className="text-[10px]">Inativo</Badge>}
                 </div>
               </div>
               <Button size="icon" variant="ghost" onClick={() => onEdit(t)}><Pencil className="h-3.5 w-3.5" /></Button>

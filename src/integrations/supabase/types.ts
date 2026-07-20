@@ -70,6 +70,7 @@ export type Database = {
           data_nascimento: string | null
           email: string | null
           email_corporativo: string | null
+          empresa: string | null
           endereco: string | null
           foto_url: string | null
           funcao_atual: string | null
@@ -89,6 +90,7 @@ export type Database = {
           data_nascimento?: string | null
           email?: string | null
           email_corporativo?: string | null
+          empresa?: string | null
           endereco?: string | null
           foto_url?: string | null
           funcao_atual?: string | null
@@ -108,6 +110,7 @@ export type Database = {
           data_nascimento?: string | null
           email?: string | null
           email_corporativo?: string | null
+          empresa?: string | null
           endereco?: string | null
           foto_url?: string | null
           funcao_atual?: string | null
@@ -131,6 +134,8 @@ export type Database = {
           id: string
           logo_url: string | null
           nome_empresa: string
+          nome_fantasia: string | null
+          razao_social: string | null
           tecnico_responsavel_nome: string | null
           tecnico_responsavel_registro: string | null
           telefone: string | null
@@ -144,6 +149,8 @@ export type Database = {
           id?: string
           logo_url?: string | null
           nome_empresa?: string
+          nome_fantasia?: string | null
+          razao_social?: string | null
           tecnico_responsavel_nome?: string | null
           tecnico_responsavel_registro?: string | null
           telefone?: string | null
@@ -157,6 +164,8 @@ export type Database = {
           id?: string
           logo_url?: string | null
           nome_empresa?: string
+          nome_fantasia?: string | null
+          razao_social?: string | null
           tecnico_responsavel_nome?: string | null
           tecnico_responsavel_registro?: string | null
           telefone?: string | null
@@ -298,9 +307,13 @@ export type Database = {
           contato: string | null
           created_at: string
           email: string | null
+          endereco: string | null
           id: string
+          logo_url: string | null
           nome: string
+          nome_fantasia: string | null
           observacoes: string | null
+          razao_social: string | null
           telefone: string | null
           tipos_treinamento: string | null
           updated_at: string
@@ -310,9 +323,13 @@ export type Database = {
           contato?: string | null
           created_at?: string
           email?: string | null
+          endereco?: string | null
           id?: string
+          logo_url?: string | null
           nome: string
+          nome_fantasia?: string | null
           observacoes?: string | null
+          razao_social?: string | null
           telefone?: string | null
           tipos_treinamento?: string | null
           updated_at?: string
@@ -322,9 +339,13 @@ export type Database = {
           contato?: string | null
           created_at?: string
           email?: string | null
+          endereco?: string | null
           id?: string
+          logo_url?: string | null
           nome?: string
+          nome_fantasia?: string | null
           observacoes?: string | null
+          razao_social?: string | null
           telefone?: string | null
           tipos_treinamento?: string | null
           updated_at?: string
@@ -425,6 +446,7 @@ export type Database = {
       }
       treinamentos: {
         Row: {
+          ativo: boolean
           carga_horaria: number | null
           concluido: boolean
           conteudo_programatico: string | null
@@ -443,6 +465,7 @@ export type Database = {
           validade_valor: number | null
         }
         Insert: {
+          ativo?: boolean
           carga_horaria?: number | null
           concluido?: boolean
           conteudo_programatico?: string | null
@@ -461,6 +484,7 @@ export type Database = {
           validade_valor?: number | null
         }
         Update: {
+          ativo?: boolean
           carga_horaria?: number | null
           concluido?: boolean
           conteudo_programatico?: string | null
@@ -582,7 +606,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "tecnico" | "consulta"
-      tipo_treinamento: "treinamento" | "palestra"
+      tipo_treinamento:
+        | "treinamento"
+        | "palestra"
+        | "integracao"
+        | "workshop"
+        | "dds"
+        | "personalizado"
       unidade_tempo: "dias" | "meses" | "anos"
     }
     CompositeTypes: {
@@ -712,7 +742,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "tecnico", "consulta"],
-      tipo_treinamento: ["treinamento", "palestra"],
+      tipo_treinamento: [
+        "treinamento",
+        "palestra",
+        "integracao",
+        "workshop",
+        "dds",
+        "personalizado",
+      ],
       unidade_tempo: ["dias", "meses", "anos"],
     },
   },
