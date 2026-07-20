@@ -80,6 +80,7 @@ function TreinamentosPage() {
         data_hora: form.data_hora || null,
         local: form.local || null,
         instrutor: form.instrutor || null,
+        ativo: form.ativo ?? true,
       };
       if (editing) {
         const { error } = await supabase.from("treinamentos").update(payload).eq("id", editing.id);
