@@ -193,11 +193,6 @@ function TreinamentosPage() {
                   <SelectContent>{nrOpts.map((n: any) => <SelectItem key={n.id} value={n.id}>{n.codigo} — {n.titulo}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-                <Select value={form.nr_id} onValueChange={(v) => setForm({ ...form, nr_id: v })}>
-                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
-                  <SelectContent>{nrOpts.map((n: any) => <SelectItem key={n.id} value={n.id}>{n.codigo} — {n.titulo}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
               <div><Label>Data e horário</Label><Input type="datetime-local" value={form.data_hora} onChange={(e) => setForm({ ...form, data_hora: e.target.value })} /></div>
               <div><Label>Local</Label><Input value={form.local} onChange={(e) => setForm({ ...form, local: e.target.value })} /></div>
               <div><Label>Instrutor</Label><Input value={form.instrutor} onChange={(e) => setForm({ ...form, instrutor: e.target.value })} /></div>
@@ -216,8 +211,18 @@ function TreinamentosPage() {
                   </Select>
                 </div>
               </div>
+              <div>
+                <Label>Status</Label>
+                <Select value={form.ativo ? "ativo" : "inativo"} onValueChange={(v) => setForm({ ...form, ativo: v === "ativo" })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="inativo">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="col-span-2">
-                <Label>Fornecedor</Label>
+                <Label>Empresa responsável pelo treinamento</Label>
                 <Select value={form.fornecedor_id} onValueChange={(v) => setForm({ ...form, fornecedor_id: v })}>
                   <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>{(fornecedores ?? []).map((f: any) => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}</SelectContent>
