@@ -173,7 +173,7 @@ function TreinamentosPage() {
 
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>{editing ? "Editar" : "Novo"} {form.tipo === "palestra" ? "palestra" : "treinamento"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? "Editar" : "Novo"} {labelTipoTreinamento(form.tipo).toLowerCase()}</DialogTitle></DialogHeader>
           <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2"><Label>Nome</Label><Input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} /></div>
@@ -182,13 +182,17 @@ function TreinamentosPage() {
                 <Select value={form.tipo} onValueChange={(v) => setForm({ ...form, tipo: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="treinamento">Treinamento</SelectItem>
-                    <SelectItem value="palestra">Palestra</SelectItem>
+                    {TIPOS_TREINAMENTO.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>NR</Label>
+                <Label>NR (opcional)</Label>
+                <Select value={form.nr_id} onValueChange={(v) => setForm({ ...form, nr_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>{nrOpts.map((n: any) => <SelectItem key={n.id} value={n.id}>{n.codigo} — {n.titulo}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
                 <Select value={form.nr_id} onValueChange={(v) => setForm({ ...form, nr_id: v })}>
                   <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>{nrOpts.map((n: any) => <SelectItem key={n.id} value={n.id}>{n.codigo} — {n.titulo}</SelectItem>)}</SelectContent>
