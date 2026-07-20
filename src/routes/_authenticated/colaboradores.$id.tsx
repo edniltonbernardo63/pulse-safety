@@ -92,6 +92,20 @@ function ColaboradorDetalhe() {
     return map;
   }, [epis]);
 
+  const resumo = useMemo(() => {
+    const list = treinamentos ?? [];
+    let vigente = 0, vencer = 0, vencido = 0, semData = 0;
+    list.forEach((t: any) => {
+      const s = statusVencimento(t.data_vencimento);
+      if (s === "valido") vigente++;
+      else if (s === "a_vencer") vencer++;
+      else if (s === "vencido") vencido++;
+      else semData++;
+    });
+    const ordenados = [...list].sort((a: any, b: any) => (b.data_realizacao ?? "").localeCompare(a.data_realizacao ?? ""));
+    return { total: list.length, vigente, vencer, vencido, semData, ultimo: ordenados[0] };
+  }, [treinamentos]);
+
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" size="sm">
