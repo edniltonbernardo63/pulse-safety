@@ -130,31 +130,46 @@ function TreinamentosPage() {
     setOpen(true);
   }
 
-  const treinamentos = (catalog ?? []).filter((t: any) => t.tipo === "treinamento");
-  const palestras = (catalog ?? []).filter((t: any) => t.tipo === "palestra");
+  const [tipoFiltro, setTipoFiltro] = useState<string>("todos");
+  const [statusFiltro, setStatusFiltro] = useState<string>("ativos");
+  const items = (catalog ?? []).filter((t: any) => {
+    if (tipoFiltro !== "todos" && t.tipo !== tipoFiltro) return false;
+    if (statusFiltro === "ativos" && t.ativo === false) return false;
+    if (statusFiltro === "inativos" && t.ativo !== false) return false;
+    return true;
+  });
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Treinamentos e palestras</h1>
-          <p className="text-sm text-muted-foreground">Catálogo, agenda, presenças e conclusão de turmas.</p>
+          <h1 className="text-2xl font-bold">Treinamentos e capacitações</h1>
+          <p className="text-sm text-muted-foreground">Cadastre treinamentos, palestras, DDS, integrações, workshops e eventos personalizados de qualquer setor.</p>
         </div>
         <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Novo</Button>
       </div>
 
-      <Tabs defaultValue="treinamento">
-        <TabsList>
-          <TabsTrigger value="treinamento">Treinamentos</TabsTrigger>
-          <TabsTrigger value="palestra">Palestras</TabsTrigger>
-        </TabsList>
-        <TabsContent value="treinamento">
-          <ListaCatalogo items={treinamentos} onEdit={openEdit} onPresenca={setPresenca} onConcluir={setConcluir} />
-        </TabsContent>
-        <TabsContent value="palestra">
-          <ListaCatalogo items={palestras} onEdit={openEdit} onPresenca={setPresenca} onConcluir={setConcluir} />
-        </TabsContent>
-      </Tabs>
+      <div className="flex flex-wrap gap-2 items-center">
+        <Select value={tipoFiltro} onValueChange={setTipoFiltro}>
+          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os tipos</SelectItem>
+            {TIPOS_TREINAMENTO.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={statusFiltro} onValueChange={setStatusFiltro}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ativos">Ativos</SelectItem>
+            <SelectItem value="inativos">Inativos</SelectItem>
+            <SelectItem value="todos">Todos</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-sm text-muted-foreground ml-auto">{items.length} registros</span>
+      </div>
+
+      <ListaCatalogo items={items} onEdit={openEdit} onPresenca={setPresenca} onConcluir={setConcluir} />
+
 
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
         <DialogContent className="max-w-2xl">
